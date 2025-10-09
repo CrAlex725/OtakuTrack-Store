@@ -1,0 +1,7 @@
+# Root .gitignore
+node_modules/
+.env
+mongo-data
+dist/
+.vscode/
+.DS_Store
