@@ -1,0 +1,28 @@
+version: '3.8'
+
+services: # Define los contenedores
+  backend:
+    build: ./backend #Construye la imagen dentro de /backend
+    container_name: otakutrack-backend #Nombre del contenedor
+    ports:
+      - "3001:3001" #Expone el puerto 3001 como backend
+    env_file:
+      - .env # Carga variables desde .env
+    depends_on:
+      - mongo # Inicia despues de mongo "depende de:"
+    volumes:
+      - ./backend:/app # Sincroniza los archivos con los del contenedor usando esto de manera local
+      - /app/node_modules #//
+    restart: always
+
+  mongo:
+    image: mongo:6 # Usa la imagen oficial de MongoDB version 6
+    container_name: otakutrack-mongo #Nombre del contenedor
+    ports:
+      - "27017:27017" # establece el puerto 27017 como la base de datos
+    volumes:
+      - mongo_data:/data/db # Guarda los datos en un volumen persistente. Si el contenedor se borra los datos se mantienen
+    restart: always
+
+volumes:
+  mongo_data:
