@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const controlador = require('../controllers/ProductController');
 
-// CRUD de productos - USAR NOMBRES EN INGLÉS
+// CRUD de productos
 router.get('/', controlador.getAllProducts);
 router.post('/', controlador.createProduct);
 router.get('/:id', controlador.getProductById);
