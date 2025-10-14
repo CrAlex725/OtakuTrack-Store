@@ -52,3 +52,19 @@ exports.deleteProduct = async (req, res) => {
     res.status(400).json({ error: 'Error al eliminar producto', details: error.message });
   }
 };
+
+// 🟣 Obtener productos por categoría
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params; // toma el id de la URL
+    const products = await Product.find({ categoria: categoryId }).populate('categoria', 'nombre');
+    
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron productos en esta categoría' });
+    }
+
+    res.json(products);
+  } catch (error) {
+    res.status(400).json({ error: 'Error al obtener productos por categoría', details: error.message });
+  }
+};

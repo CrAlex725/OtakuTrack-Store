@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const controlador = require('../controllers/ProductController');
+const Product = require('../models/ProductModel');
 
 // CRUD de productos
 router.get('/', controlador.getAllProducts);
@@ -9,5 +10,6 @@ router.post('/', controlador.createProduct);
 router.get('/:id', controlador.getProductById);
 router.put('/:id', controlador.updateProduct);
 router.delete('/:id', controlador.deleteProduct);
+router.get('category/:categoryID', productController.deleteProduct);
 
 module.exports = router;
