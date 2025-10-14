@@ -1,73 +1,54 @@
-// backend/controllers/ProductController.js
+// backend/src/controllers/ProductController.js
 const Product = require('../models/ProductModel');
 
 // 🟢 Obtener todos los productos
-const getAllProducts = async (req, res) => {
+exports.getAllProducts = async (req, res) => {
   try {
-    const productos = await Product.find();
-    res.json(productos);
+    const products = await Product.find().populate('categoria', 'nombre');
+    res.json(products);
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los productos' });
+    res.status(500).json({ error: 'Error al obtener productos', details: error.message });
   }
 };
 
-// 🟢 Crear un nuevo producto
-const createProduct = async (req, res) => {
+// 🟢 Crear producto
+exports.createProduct = async (req, res) => {
   try {
-    const nuevoProducto = new Product(req.body);
-    const guardado = await nuevoProducto.save();
-    res.status(201).json(guardado);
+    const newProduct = new Product(req.body);
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
   } catch (error) {
-    res.status(400).json({ message: 'Error al crear el producto', error: error.message });
+    res.status(400).json({ error: 'Error al crear producto', details: error.message });
   }
 };
 
-// 🟢 Obtener un producto por ID
-const getProductById = async (req, res) => {
+// 🟢 Obtener por ID
+exports.getProductById = async (req, res) => {
   try {
-    const producto = await Product.findById(req.params.id);
-    if (!producto) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.json(producto);
+    const product = await Product.findById(req.params.id).populate('categoria', 'nombre');
+    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+    res.json(product);
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener el producto', error: error.message });
+    res.status(400).json({ error: 'Error al buscar producto', details: error.message });
   }
 };
 
-// 🟢 Actualizar un producto
-const updateProduct = async (req, res) => {
+// 🟢 Actualizar
+exports.updateProduct = async (req, res) => {
   try {
-    const producto = await Product.findByIdAndUpdate(req.params.id, req.body, { 
-      new: true, 
-      runValidators: true 
-    });
-    if (!producto) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.json(producto);
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('categoria', 'nombre');
+    res.json(updated);
   } catch (error) {
-    res.status(400).json({ message: 'Error al actualizar el producto', error: error.message });
+    res.status(400).json({ error: 'Error al actualizar producto', details: error.message });
   }
 };
 
-// 🟢 Eliminar un producto
-const deleteProduct = async (req, res) => {
+// 🟢 Eliminar
+exports.deleteProduct = async (req, res) => {
   try {
-    const producto = await Product.findByIdAndDelete(req.params.id);
-    if (!producto) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
+    await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar el producto', error: error.message });
+    res.status(400).json({ error: 'Error al eliminar producto', details: error.message });
   }
-};
-
-module.exports = {
-  getAllProducts,
-  createProduct,
-  getProductById,
-  updateProduct,
-  deleteProduct
 };

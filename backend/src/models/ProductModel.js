@@ -21,7 +21,8 @@ const productSchema = new mongoose.Schema({
     required: false
   },
   categoria: {
-    type: String,       // Ej: “Naruto”, “One Piece”, “Kimetsu no Yaiba”
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'Category',       // Ej: “Naruto”, “One Piece”, “Kimetsu no Yaiba”
     required: false
   },
   stock: {
