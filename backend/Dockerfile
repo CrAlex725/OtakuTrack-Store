@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 3001
 
 # Comando por defecto para ejecutar la app
-CMD ["node", "src/app.js"]
+CMD ["node", "src/server.js"]
