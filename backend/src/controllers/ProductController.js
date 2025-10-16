@@ -56,7 +56,7 @@ exports.deleteProduct = async (req, res) => {
 // 🟣 Obtener productos por categoría
 exports.getProductsByCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params; // toma el id de la URL
+    const { categoryId } = req.params; // Cambiado de categoryID a categoryId
     const products = await Product.find({ categoria: categoryId }).populate('categoria', 'nombre');
     
     if (products.length === 0) {

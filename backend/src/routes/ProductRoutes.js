@@ -1,15 +1,16 @@
 // backend/src/routes/ProductRoutes.js
 const express = require('express');
 const router = express.Router();
-const controlador = require('../controllers/ProductController');
-const Product = require('../models/ProductModel');
+const productController = require('../controllers/ProductController');
 
-// CRUD de productos
-router.get('/', controlador.getAllProducts);
-router.post('/', controlador.createProduct);
-router.get('/:id', controlador.getProductById);
-router.put('/:id', controlador.updateProduct);
-router.delete('/:id', controlador.deleteProduct);
-router.get('category/:categoryID', productController.deleteProduct);
+// 🟢 RUTAS ESPECÍFICAS PRIMERO
+router.get('/category/:categoryId', productController.getProductsByCategory);
+
+// 🟢 RUTAS DINÁMICAS DESPUÉS
+router.get('/', productController.getAllProducts);
+router.post('/', productController.createProduct);
+router.get('/:id', productController.getProductById);
+router.put('/:id', productController.updateProduct);
+router.delete('/:id', productController.deleteProduct);
 
 module.exports = router;

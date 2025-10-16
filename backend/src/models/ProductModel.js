@@ -34,7 +34,7 @@ const productSchema = new mongoose.Schema({
 });
 
 // 2️⃣ Creamos el modelo 'Product' a partir del esquema
-const Product = mongoose.model/*modelo*/('Product', productSchema);
+const Product = mongoose.model('Product', productSchema);
 
 // 3️⃣ Lo exportamos para usarlo en otras partes del proyecto
 module.exports = Product;

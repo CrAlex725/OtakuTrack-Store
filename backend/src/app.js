@@ -1,6 +1,5 @@
 const express = require('express'); // Crea el Servidor y Maneja las rutas 
 const cors = require('cors'); //Permite al frontend (React) hacer peticiones desde otro puerto
-const connectDB = require('./config/db'); // Conecta al archivo db.js
 const productRoutes = require('./routes/ProductRoutes'); //importa products de la carpeta routes
 const categoryRoutes = require('./routes/CategoryRoutes');
 require('dotenv').config(); // lee configuraciones de .env en la raiz
