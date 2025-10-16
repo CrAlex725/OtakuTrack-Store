@@ -1,5 +1,6 @@
 // backend/src/controllers/CategoryController.js
 const Category = require('../models/CategoryModel');
+const Product = require('../models/ProductModel');
 
 // 🟢 Obtener todas las categorías (con jerarquía)
 exports.getAllCategories = async (req, res) => {
@@ -101,5 +102,27 @@ exports.getCategoryTree = async (req, res) => {
       error: 'Error al generar árbol de categorías',
       details: error.message
     });
+  }
+};
+
+// 🗃️ Obtener todos los productos que pertenecen a una categoría específica
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verificamos si la categoría existe
+    const category = await Category.findById(id);
+    if (!category) return res.status(404).json({ message: 'Categoría no encontrada' });
+
+    // Buscamos los productos con esa categoría como referencia
+    const products = await Product.find({ categoria: id }).populate('categoria', 'nombre descripcion');
+
+    res.json({
+      categoria: category.nombre,
+      cantidad: products.length,
+      productos: products
+    });
+  } catch (error) {
+    res.status(400).json({ error: 'Error al obtener productos de la categoría', details: error.message });
   }
 };
