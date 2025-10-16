@@ -54,3 +54,35 @@ exports.deleteCategory = async (req, res) => {
     res.status(400).json({ error: 'Error al eliminar categoría', details: error.message });
   }
 };
+
+// 🧭 Obtener categorías en forma de árbol (jerarquía completa)
+exports.getCategoryTree = async (req, res) => {
+  try {
+    const categories = await Category.find().lean();
+
+    // Construimos un mapa (diccionario) para acceder rápido por ID
+    const categoryMap = {};
+    categories.forEach(cat => {
+      cat.subcategorias = [];
+      categoryMap[cat._id] = cat;
+    });
+
+    // Vinculamos cada categoría con su padre
+    const rootCategories = [];
+    categories.forEach(cat => {
+      if (cat.parent) {
+        const parent = categoryMap[cat.parent];
+        if (parent) parent.subcategorias.push(cat);
+      } else {
+        rootCategories.push(cat);
+      }
+    });
+
+    res.json(rootCategories);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error al generar árbol de categorías',
+      details: error.message
+    });
+  }
+};
