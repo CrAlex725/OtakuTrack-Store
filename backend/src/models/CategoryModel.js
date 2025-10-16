@@ -23,6 +23,9 @@ const categorySchema = new mongoose.Schema({
   timestamps: true
 });
 
+// 🔒 Índice compuesto: evita duplicados por nombre dentro del mismo parent
+categorySchema.index({nombre:1, parent: 1}, {unique: true});
+
 // 📘 Modelo
 const Category = mongoose.model('Category', categorySchema);
 

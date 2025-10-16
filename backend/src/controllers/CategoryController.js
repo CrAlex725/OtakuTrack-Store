@@ -20,7 +20,17 @@ exports.createCategory = async (req, res) => {
     const saved = await newCategory.save();
     res.status(201).json(saved);
   } catch (error) {
-    res.status(400).json({ error: 'Error al crear categoría', details: error.message });
+    // Manejo del error de duplicado
+    if (error.code === 11000) {
+      return res.status(400).json({
+        error: 'Esta categoría ya existe',
+        details: 'Ya existe una categoría con este nombre dentro del mismo nivel'
+      });
+    }
+
+    res.status(400).json({ 
+      error: 'Error al crear categoría', 
+      details: error.message });
   }
 };
 
@@ -41,6 +51,13 @@ exports.updateCategory = async (req, res) => {
     const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
   } catch (error) {
+    // Manejo del error de duplicado
+    if (error.code === 11000) {
+      return res.status(400).json({
+        error: 'Categoría duplicada',
+        details: 'Ya existe otra categoría con este nombre en el mismo nivel'
+      });
+    }
     res.status(400).json({ error: 'Error al actualizar categoría', details: error.message });
   }
 };

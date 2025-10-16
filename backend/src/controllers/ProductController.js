@@ -4,7 +4,7 @@ const Product = require('../models/ProductModel');
 // 🟢 Obtener todos los productos
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('categoria', 'nombre');
+    const products = await Product.find().populate('categoria', 'nombre descripcion');
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener productos', details: error.message });
@@ -14,9 +14,27 @@ exports.getAllProducts = async (req, res) => {
 // 🟢 Crear producto
 exports.createProduct = async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
+    const { nombre, descripcion, precio, imagen, stock, categoria } = req.body;
+
+    // Si se envía una categoría, validar que exista
+    if (categoria) {
+      const exists = await Category.findById(categoria);
+      if (!exists) {
+        return res.status(400).json({ error: 'La categoría especificada no existe' });
+      }
+    }
+
+    const newProduct = new Product({
+      nombre,
+      descripcion,
+      precio,
+      imagen,
+      stock,
+      categoria,
+    });
+
+    const saved = await newProduct.save();
+    res.status(201).json(saved);
   } catch (error) {
     res.status(400).json({ error: 'Error al crear producto', details: error.message });
   }
@@ -25,7 +43,7 @@ exports.createProduct = async (req, res) => {
 // 🟢 Obtener por ID
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('categoria', 'nombre');
+    const product = await Product.findById(req.params.id).populate('categoria', 'nombre descripcion');
     if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
     res.json(product);
   } catch (error) {
@@ -36,7 +54,8 @@ exports.getProductById = async (req, res) => {
 // 🟢 Actualizar
 exports.updateProduct = async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('categoria', 'nombre');
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .populate('categoria', 'nombre descripcion');
     res.json(updated);
   } catch (error) {
     res.status(400).json({ error: 'Error al actualizar producto', details: error.message });
