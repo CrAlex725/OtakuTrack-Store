@@ -126,3 +126,48 @@ exports.getProductsByCategory = async (req, res) => {
     res.status(400).json({ error: 'Error al obtener productos de la categoría', details: error.message });
   }
 };
+
+// 🗃️ Obtener productos incluyendo subcategorías recursivamente
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const Product = require('../models/ProductModel'); // evita import circular
+
+    // Verificamos que la categoría exista
+    const rootCategory = await Category.findById(id);
+    if (!rootCategory)
+      return res.status(404).json({ message: 'Categoría no encontrada' });
+
+    // 🔁 Función recursiva para obtener subcategorías
+    const getAllSubcategories = async (parentId) => {
+      const subs = await Category.find({ parent: parentId });
+      let all = [...subs];
+      for (const sub of subs) {
+        const nested = await getAllSubcategories(sub._id);
+        all = all.concat(nested);
+      }
+      return all;
+    };
+
+    // Obtenemos todas las subcategorías del árbol
+    const subcategories = await getAllSubcategories(id);
+    const allCategoryIds = [id, ...subcategories.map(cat => cat._id)];
+
+    // Buscamos productos que pertenezcan a cualquiera de estas categorías
+    const products = await Product.find({ categoria: { $in: allCategoryIds } })
+      .populate('categoria', 'nombre');
+
+    res.json({
+      categoria: rootCategory.nombre,
+      totalCategorias: allCategoryIds.length,
+      totalProductos: products.length,
+      productos: products
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      error: 'Error al obtener productos de la categoría y subcategorías',
+      details: error.message
+    });
+  }
+};
