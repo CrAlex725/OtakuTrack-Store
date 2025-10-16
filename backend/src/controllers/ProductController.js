@@ -1,11 +1,55 @@
 // backend/src/controllers/ProductController.js
 const Product = require('../models/ProductModel');
 
-// 🟢 Obtener todos los productos
+// 🟢 Obtener todos los productos con filtros, búsqueda y paginación
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('categoria', 'nombre descripcion');
-    res.json(products);
+    const { search, categoria, minPrecio, maxPrecio, page = 1, limit = 10, sort } = req.query;
+
+    const filtro = {};
+
+    // 🔍 Buscar por nombre o descripción (insensible a mayúsculas)
+    if (search) {
+      filtro.$or = [
+        { nombre: { $regex: search, $options: 'i' } },
+        { descripcion: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // 🏷️ Filtrar por categoría (y sus subcategorías)
+    if (categoria) {
+      filtro.categoria = categoria;
+    }
+
+    // 💰 Filtrar por rango de precio
+    if (minPrecio || maxPrecio) {
+      filtro.precio = {};
+      if (minPrecio) filtro.precio.$gte = Number(minPrecio);
+      if (maxPrecio) filtro.precio.$lte = Number(maxPrecio);
+    }
+
+    // 📄 Paginación
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // 🔽 Orden (por ejemplo: ?sort=precio o ?sort=-precio para descendente)
+    const orden = sort ? sort.replace(',', ' ') : '-createdAt';
+
+    // 🧾 Ejecutamos la consulta
+    const [productos, total] = await Promise.all([
+      Product.find(filtro)
+        .populate('categoria', 'nombre descripcion')
+        .sort(orden)
+        .skip(skip)
+        .limit(Number(limit)),
+      Product.countDocuments(filtro)
+    ]);
+
+    res.json({
+      total,
+      page: Number(page),
+      totalPages: Math.ceil(total / Number(limit)),
+      productos
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener productos', details: error.message });
   }
