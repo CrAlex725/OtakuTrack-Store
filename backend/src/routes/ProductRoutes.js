@@ -4,7 +4,7 @@ const router = express.Router();
 const productController = require('../controllers/ProductController');
 
 // 🟢 RUTAS ESPECÍFICAS PRIMERO
-router.get('/category/:categoryId', productController.getProductsByCategory);
+router.get('/category/:id', productController.getProductsByCategory);
 
 // 🟢 RUTAS DINÁMICAS DESPUÉS
 router.get('/', productController.getAllProducts);

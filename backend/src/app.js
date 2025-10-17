@@ -6,7 +6,11 @@ require('dotenv').config(); // lee configuraciones de .env en la raiz
 
 const app = express(); // Escucha peticiones HTTP y envía respuestas
 
-app.use(cors()) // si no está las peticiones se bloquearían por el navegador
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173'], // tu frontend
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true
+})); // si no está las peticiones se bloquearían por el navegador
 app.use(express.json()) // hace que el servidor entienda datos .JSON
 
 //Rutas

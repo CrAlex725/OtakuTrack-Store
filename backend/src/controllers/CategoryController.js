@@ -131,7 +131,6 @@ exports.getProductsByCategory = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const Product = require('../models/ProductModel'); // evita import circular
 
     // Verificamos que la categoría exista
     const rootCategory = await Category.findById(id);

@@ -9,7 +9,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copiar el resto del código del backend
-COPY . .
+COPY src/ ./src/
 
 # Exponer el puerto del backend
 EXPOSE 3001

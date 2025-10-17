@@ -66,6 +66,14 @@ exports.createProduct = async (req, res) => {
       if (!exists) {
         return res.status(400).json({ error: 'La categoría especificada no existe' });
       }
+
+      // ✅ Validar que la categoría no tenga subcategorías
+      const tieneHijos = await Category.exists({ parent: categoria });
+      if (tieneHijos) {
+        return res.status(400).json({
+          error: 'No se puede crear un producto en una categoría que tiene subcategorías. Seleccione una categoría hoja.'
+        });
+      }
     }
 
     const newProduct = new Product({
@@ -79,6 +87,7 @@ exports.createProduct = async (req, res) => {
 
     const saved = await newProduct.save();
     res.status(201).json(saved);
+
   } catch (error) {
     res.status(400).json({ error: 'Error al crear producto', details: error.message });
   }
@@ -119,9 +128,14 @@ exports.deleteProduct = async (req, res) => {
 // 🟣 Obtener productos por categoría
 exports.getProductsByCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params; // Cambiado de categoryID a categoryId
+    // La ruta usa :categoryId — usar el mismo nombre aquí
+    const { categoryId } = req.params;
+    if(!categoryId) {
+      return res.status(400).json({ error: 'categoryId es requerido' });
+    }
+
     const products = await Product.find({ categoria: categoryId }).populate('categoria', 'nombre');
-    
+
     if (products.length === 0) {
       return res.status(404).json({ message: 'No se encontraron productos en esta categoría' });
     }
@@ -130,4 +144,4 @@ exports.getProductsByCategory = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Error al obtener productos por categoría', details: error.message });
   }
-};
+};;
