@@ -1,19 +1,38 @@
-# docker-compose.yml - VERSIÓN CORREGIDA
+#docker-compose.yml
+version: '3.8'
 
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: otakutrack-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+    depends_on:
+      - backend
+
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: otakutrack-backend
     ports:
       - "3001:3001"
-    env_file:
-      - .env
+    environment:
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo:27017/otakutrack_db
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/package.json:/app/package.json
+    restart: always
     depends_on:
       - mongo
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    restart: always
 
   mongo:
     image: mongo:6
@@ -22,6 +41,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      # Si tienes un script mongo-init.js válido, descomenta la línea siguiente y ajusta la ruta
+      # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     restart: always
 
 volumes:

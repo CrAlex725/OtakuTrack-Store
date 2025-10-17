@@ -1,12 +1,15 @@
-import './App.css'
-import CategoryList from './components/CategoryList'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import ProductsByCategory from "./pages/ProductsByCategory";
 
 function App() {
   return (
-    <div>
-      <h1>🛒 OtakuTrack - Tienda</h1>
-      <CategoryList />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/categoria/:id" element={<ProductsByCategory />} />
+      </Routes>
+    </Router>
   );
 }
 
