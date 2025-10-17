@@ -1,0 +1,13 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
+// Traer categorías en forma de árbol
+export const getCategories = async () => {
+  try {
+    const res = await fetch(`${API_URL}/categories/tree`);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    return await res.json();
+  } catch (error) {
+    console.error('Error al obtener categorías:', error);
+    return [];
+  }
+};
