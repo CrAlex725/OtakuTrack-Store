@@ -1,12 +1,13 @@
-// backend/src/routes/ProductRoutes.js
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/ProductController');
+const { getProductsByCategoryAndSubcategories } = require('../controllers/ProductController');
 
 // 🟢 RUTAS ESPECÍFICAS PRIMERO
+router.get('/category-with-sub/:id', getProductsByCategoryAndSubcategories);
 router.get('/category/:categoryId', productController.getProductsByCategory);
 
-// 🟢 RUTAS DINÁMICAS DESPUÉS
+// 🟢 CRUD
 router.get('/', productController.getAllProducts);
 router.post('/', productController.createProduct);
 router.get('/:id', productController.getProductById);

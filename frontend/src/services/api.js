@@ -26,3 +26,25 @@ export const getProductsByCategory = async (categoryId) => {
     return [];
   }
 };
+
+export const getProductsByCategoryAndSubcategories = async (categoryId) => {
+  try {
+    const res = await fetch(`${API_URL}/products/category-with-sub/${categoryId}`);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    return await res.json();
+  } catch (error) {
+    console.error('Error al obtener productos y subcategorías:', error);
+    return [];
+  }
+};
+
+export const getSubcategories = async (parentId) => {
+  try {
+    const res = await fetch(`${API_URL}/categories/parent/${parentId}`);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    return await res.json();
+  } catch (error) {
+    console.error('Error al obtener subcategorías:', error);
+    return [];
+  }
+};

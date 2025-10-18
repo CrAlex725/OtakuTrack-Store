@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProductsByCategory } from "../services/api";
+import { getProductsByCategoryAndSubcategories } from "../services/api";
 
 const ProductsByCategory = () => {
   const { id } = useParams();
@@ -11,7 +11,7 @@ const ProductsByCategory = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProductsByCategory(id);
+        const data = await getProductsByCategoryAndSubcategories(id);
         setProducts(data);
         if (data.length === 0) setError("No hay productos en esta categoría.");
       } catch (err) {

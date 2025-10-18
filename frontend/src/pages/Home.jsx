@@ -1,3 +1,4 @@
+//frontend/src/pages/Home.jsx
 import CategoryList from "../components/CategoryList";
 
 function Home() {

@@ -145,3 +145,25 @@ exports.getProductsByCategory = async (req, res) => {
     res.status(400).json({ error: 'Error al obtener productos por categoría', details: error.message });
   }
 };;
+
+const Category = require('../models/CategoryModel');
+
+exports.getProductsByCategoryAndSubcategories = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+
+    // Buscar subcategorías (nivel 1)
+    const subcategories = await Category.find({ parent: categoryId }).select('_id');
+
+    // Crear array con el ID padre + subcategorías
+    const categoryIds = [categoryId, ...subcategories.map(cat => cat._id)];
+
+    // Buscar productos que pertenezcan a alguna de esas categorías
+    const products = await Product.find({ categoria: { $in: categoryIds } });
+
+    res.json(products);
+  } catch (error) {
+    console.error('❌ Error al obtener productos por categoría y subcategorías:', error);
+    res.status(500).json({ message: 'Error al obtener productos por categoría y subcategorías' });
+  }
+};
