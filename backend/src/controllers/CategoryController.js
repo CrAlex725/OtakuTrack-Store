@@ -1,11 +1,9 @@
-// backend/src/controllers/CategoryController.js
 const Category = require('../models/CategoryModel');
 const Product = require('../models/ProductModel');
 
 // 🟢 Obtener todas las categorías (con jerarquía)
 exports.getAllCategories = async (req, res) => {
   try {
-    // Trae todas y llena el campo "parent" con su info
     const categories = await Category.find().populate('parent', 'nombre');
     res.json(categories);
   } catch (error) {
@@ -13,7 +11,7 @@ exports.getAllCategories = async (req, res) => {
   }
 };
 
-// 🟢 Crear nueva categoría, sub o sub-sub
+// 🟢 Crear nueva categoría o subcategoría
 exports.createCategory = async (req, res) => {
   try {
     const { nombre, descripcion, parent } = req.body;
@@ -21,17 +19,14 @@ exports.createCategory = async (req, res) => {
     const saved = await newCategory.save();
     res.status(201).json(saved);
   } catch (error) {
-    // Manejo del error de duplicado
+
     if (error.code === 11000) {
       return res.status(400).json({
         error: 'Esta categoría ya existe',
         details: 'Ya existe una categoría con este nombre dentro del mismo nivel'
       });
     }
-
-    res.status(400).json({ 
-      error: 'Error al crear categoría', 
-      details: error.message });
+    res.status(400).json({ error: 'Error al crear categoría', details: error.message });
   }
 };
 
@@ -52,7 +47,7 @@ exports.updateCategory = async (req, res) => {
     const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
   } catch (error) {
-    // Manejo del error de duplicado
+
     if (error.code === 11000) {
       return res.status(400).json({
         error: 'Categoría duplicada',
@@ -73,19 +68,19 @@ exports.deleteCategory = async (req, res) => {
   }
 };
 
-// 🧭 Obtener categorías en forma de árbol (jerarquía completa)
+// 🧭 Obtener jerarquía completa (árbol de categorías)
 exports.getCategoryTree = async (req, res) => {
   try {
     const categories = await Category.find().lean();
 
-    // Construimos un mapa (diccionario) para acceder rápido por ID
+
     const categoryMap = {};
     categories.forEach(cat => {
       cat.subcategorias = [];
       categoryMap[cat._id] = cat;
     });
 
-    // Vinculamos cada categoría con su padre
+
     const rootCategories = [];
     categories.forEach(cat => {
       if (cat.parent) {
@@ -98,25 +93,33 @@ exports.getCategoryTree = async (req, res) => {
 
     res.json(rootCategories);
   } catch (error) {
-    res.status(500).json({
-      error: 'Error al generar árbol de categorías',
-      details: error.message
-    });
+    res.status(500).json({ error: 'Error al generar árbol de categorías', details: error.message });
   }
 };
 
-// 🗃️ Obtener todos los productos que pertenecen a una categoría específica
+// 🟢 Obtener subcategorías directas de una categoría
+exports.getSubcategories = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const subcategories = await Category.find({ parent: id });
+    res.json(subcategories);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener subcategorías', details: error.message });
+  }
+};
+
+// 🟢 Obtener productos SOLO de una categoría (sin subcategorías)
 exports.getProductsByCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Verificamos si la categoría existe
+
     const category = await Category.findById(id);
     if (!category) return res.status(404).json({ message: 'Categoría no encontrada' });
 
-    // Buscamos los productos con esa categoría como referencia
-    const products = await Product.find({ categoria: id }).populate('categoria', 'nombre descripcion');
 
+    const products = await Product.find({ categoria: id }).populate('categoria', 'nombre descripcion');
+    
     res.json({
       categoria: category.nombre,
       cantidad: products.length,
@@ -127,17 +130,16 @@ exports.getProductsByCategory = async (req, res) => {
   }
 };
 
-// 🗃️ Obtener productos incluyendo subcategorías recursivamente
-exports.getProductsByCategory = async (req, res) => {
+// 🟣 Obtener productos de la categoría + todas sus subcategorías (recursivo)
+exports.getProductsByCategoryAndSubcategories = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Verificamos que la categoría exista
+    
     const rootCategory = await Category.findById(id);
     if (!rootCategory)
       return res.status(404).json({ message: 'Categoría no encontrada' });
 
-    // 🔁 Función recursiva para obtener subcategorías
+    // 🔁 Recursividad para buscar subcategorías
     const getAllSubcategories = async (parentId) => {
       const subs = await Category.find({ parent: parentId });
       let all = [...subs];
@@ -148,11 +150,11 @@ exports.getProductsByCategory = async (req, res) => {
       return all;
     };
 
-    // Obtenemos todas las subcategorías del árbol
+
     const subcategories = await getAllSubcategories(id);
     const allCategoryIds = [id, ...subcategories.map(cat => cat._id)];
 
-    // Buscamos productos que pertenezcan a cualquiera de estas categorías
+
     const products = await Product.find({ categoria: { $in: allCategoryIds } })
       .populate('categoria', 'nombre');
 
