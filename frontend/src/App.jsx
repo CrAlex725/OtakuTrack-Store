@@ -1,15 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import ProductsByCategory from "./pages/ProductsByCategory";
+// src/App.jsx
+import Header from "./components/Header";
 
 function App() {
+  const mostrarHeader = true;
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/categoria/:id" element={<ProductsByCategory />} />
-      </Routes>
-    </Router>
+    <>
+    {mostrarHeader && <Header />}
+    </>
   );
 }
 

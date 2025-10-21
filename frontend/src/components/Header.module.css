@@ -1,0 +1,82 @@
+.header {
+  background: linear-gradient(135deg, #1C2833, #2E86C1); /* Azul metálico */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 20px;
+  height: 70px;
+  box-sizing: border-box;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  gap: 25px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 60px; /* ← Ajusta la altura aquí */
+  width: auto;  /* Mantiene proporción */
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.link {
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.link:hover {
+  opacity: 0.8;
+}
+
+.categorias {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 40px;
+  flex-grow: 1; /* Toma el espacio restante */
+}
+
+.categoriaItem {
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.categoriaItem:hover {
+  color: #A9CCE3;
+}
+
+.sinCategorias {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.iconos {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.redes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  margin-left: 15px;
+  opacity: 0.8;
+}
+
+.redes > * {
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.redes > *:hover {
+  opacity: 1;
+}
