@@ -16,7 +16,7 @@
   align-items: center;
 }
 
-.logo img {
+.logoImg {
   height: 60px; /* ← Ajusta la altura aquí */
   width: auto;  /* Mantiene proporción */
   object-fit: contain;
@@ -79,4 +79,23 @@
 
 .redes > *:hover {
   opacity: 1;
+}
+
+
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .categorias {
+    flex-wrap: wrap;
+    margin-left: 0;
+  }
+
+  .iconos, .redes {
+    font-size: 1rem;
+  }
 }

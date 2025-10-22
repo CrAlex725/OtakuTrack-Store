@@ -1,15 +1,26 @@
+//frontend/src/components/Header.jsx
 import React from "react";
 import styles from "./Header.module.css";
-import { FaSearch, FaHeart, FaShoppingCart, FaFacebookF, FaInstagram, FaTwitter, FaGithub, FaXRay, FaXbox, FaXing } from "react-icons/fa";
+import logo from "../assets/logo.svg";
+import { FaSearch, FaHeart, FaShoppingCart, FaInstagram, FaGithub} from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function Header({ categoriasPadre = [] }) {
   return (
     <header className={styles.header}>
       {/* Secciones principales */}
+      
       <div className={styles.logo}>
-        <img src="./Assets/Icono.jpg" alt="Logo" />
+        <img src= {logo} alt="OtakuTrack Logo" className={styles.logoImg} />
       </div>
-      <div className={styles.link}>Catálogo</div>
+
+      <div className={styles.link}>
+        <Link to="/catalogo" className={styles.catalogLink}>
+        Catálogo
+        </Link>
+      </div>
+
+
       <div className={styles.link}>En Stock</div>
 
       {/* Categorías padre (dinámicas) */}
