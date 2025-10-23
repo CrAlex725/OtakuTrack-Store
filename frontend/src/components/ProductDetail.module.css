@@ -1,0 +1,256 @@
+.productDetail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  padding: 2rem;
+}
+
+/* 🔹 Contenedor de dos columnas */
+.mainSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3rem;
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* 🔹 Imagen principal */
+.imageContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f0f0f0;
+  border-radius: 1rem;
+  padding: 1rem;
+  position: relative;
+}
+
+/* 🔹 Contenedor de imagen principal con flechas */
+.mainImageWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.productImage {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 1rem;
+}
+
+/* 🔹 Flechas de navegación */
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.navButton:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prevButton {
+  left: 10px;
+}
+
+.nextButton {
+  right: 10px;
+}
+
+/* Ocultar flechas si solo hay una imagen */
+.mainImageWrapper:only-child .navButton {
+  display: none;
+}
+
+/* 🔹 Miniaturas horizontales */
+.thumbnailRow {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  width: 100%;
+}
+
+.thumbnail {
+  width: 70px;
+  height: 70px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease, border 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border: 2px solid #009688; /* color de acento */
+}
+
+/* 🔹 Información del producto */
+.infoContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nombre {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.precio {
+  font-size: 1.4rem;
+  color: #009688;
+  font-weight: bold;
+}
+
+.cantidadContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cantidadInput {
+  width: 70px;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.addToCartBtn {
+  background: #009688;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.addToCartBtn:hover {
+  background: #00796b;
+}
+
+.addToCartBtn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.reseña {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.estrellas {
+  font-size: 1.2rem;
+  color: gold;
+}
+
+.ninja {
+  margin-left: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.descripcion {
+  line-height: 1.4;
+  color: #444;
+}
+
+/* 🔹 Carrusel de productos relacionados */
+.relatedSection {
+  width: 100%;
+  max-width: 1100px;
+  text-align: center;
+}
+
+.carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem 0;
+}
+
+.relatedCard {
+  min-width: 150px;
+  flex: 0 0 auto;
+  background: white;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.relatedCard:hover {
+  transform: translateY(-5px);
+}
+
+.relatedCard img {
+  width: 100%;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
+/* 🔹 Responsive */
+@media (max-width: 768px) {
+  .mainSection {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .imageContainer,
+  .infoContainer {
+    width: 100%;
+  }
+  
+  .navButton {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .prevButton {
+    left: 5px;
+  }
+  
+  .nextButton {
+    right: 5px;
+  }
+}

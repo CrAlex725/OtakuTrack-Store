@@ -4,27 +4,25 @@ import styles from "./FiltroCategoria.module.css";
 
 function FiltroCategoria() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const valorActual = searchParams.get("categoria") || "todas";
 
-  const handleChange = (e) => {
-    const nuevaCategoria = e.target.value;
-    const nuevosParams = new URLSearchParams(searchParams);
-    nuevosParams.set("categoria", nuevaCategoria);
-    setSearchParams(nuevosParams);
-  };
+  function handleChange(e) {
+    const value = e.target.value;
+    const newParams = new URLSearchParams(searchParams);
+    if (value === "todas") newParams.delete("categoria");
+    else newParams.set("categoria", value);
+    setSearchParams(newParams);
+  }
 
-  // Proximamente categorías cargadas desde el backend
+  const categoriaActual = searchParams.get("categoria") || "todas";
+
   return (
-    <div className={styles.filtro}>
-      <label htmlFor="categoria">Categoría:</label>
-      <select id="categoria" value={valorActual} onChange={handleChange}>
-        <option value="todas">Todas</option>
-        <option value="figuras">Figuras</option>
-        <option value="mangas">Mangas</option>
-        <option value="ropa">Ropa</option>
-        <option value="accesorios">Accesorios</option>
-      </select>
-    </div>
+    <select value={categoriaActual} onChange={handleChange} className={styles.select}>
+      <option value="todas">Todas las categorías</option>
+      <option value="anime">Anime</option>
+      <option value="manga">Manga</option>
+      <option value="figuras">Figuras</option>
+      <option value="ropa">Ropa</option>
+    </select>
   );
 }
 

@@ -5,26 +5,25 @@ import styles from "./FiltroDisponibilidad.module.css";
 
 function FiltroDisponibilidad() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const valorActual = searchParams.get("filtro_disp") || "todas";
+
 
   function handleChange(e) {
-    const nuevaDisponibilidad = e.target.value;
+    const value = e.target.value;
     // Mantiene otros filtros intactos
     const nuevosParams = new URLSearchParams(searchParams);
-    nuevosParams.set("filtro_disp", nuevaDisponibilidad);
+    if (value === "todas") nuevosParams.delete("filtro_disp");
+    else nuevosParams.set("filtro_disp", value);
     setSearchParams(nuevosParams);
   }
 
+  const valorActual = searchParams.get("filtro_disp") || "todas";
+
   return (
-    <div className={styles.filtro}>
-      <label htmlFor="filtro_disp">Disponibilidad:</label>
-      <select id="filtro_disp" value={valorActual} onChange={handleChange}>
-        <option value="todas">Todas</option>
-        <option value="en_stock">En stock</option>
-        <option value="agotado">Agotado</option>
-        <option value="preventa">Preventa</option>
-      </select>
-    </div>
+    <select value={valorActual} onChange={handleChange} className={styles.select}>
+      <option value="todas">Todas las disponibilidades</option>
+      <option value="disponible">Disponible</option>
+      <option value="agotado">Agotado</option>
+    </select>
   );
 }
 

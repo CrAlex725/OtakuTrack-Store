@@ -5,6 +5,7 @@ import styles from "./Catalog.module.css";
 import ProductsGrid from "../components/ProductsGrid";
 import FiltroDisponibilidad from "../components/FiltroDisponibilidad";
 import FiltroCategoria from "../components/FiltroCategoria";
+import FiltroOrden from "../components/FiltroOrden";
 
 const PAGE_SIZE = 30;
 
@@ -15,7 +16,7 @@ function Catalog() {
   const [hasMore, setHasMore] = useState(true);
   const [searchParams] = useSearchParams();
 
-  // 🔍 extrae todos los filtros desde la URL
+  // 🎯 Todos los filtros combinados
   const filtros = {
     disponibilidad: searchParams.get("filtro_disp") || "todas",
     categoria: searchParams.get("categoria") || "todas",
@@ -37,25 +38,29 @@ function Catalog() {
       const data = await res.json();
       let productosFiltrados = data.productos || [];
 
-      // 🧩 Aplica filtro de disponibilidad
+      // 🧩 Filtro de disponibilidad
       if (filtros.disponibilidad !== "todas") {
         productosFiltrados = productosFiltrados.filter(
           (p) => p.disponibilidad === filtros.disponibilidad
         );
       }
 
-      // 🧩 Aplica filtro de categoría
+      // 🧩 Filtro de categoría
       if (filtros.categoria !== "todas") {
         productosFiltrados = productosFiltrados.filter(
           (p) => p.categoria === filtros.categoria
         );
       }
 
-      // 🧩 Aplica ordenamiento si se define
+      // 🧩 Ordenamiento
       if (filtros.orden === "precio-asc") {
         productosFiltrados.sort((a, b) => a.precio - b.precio);
       } else if (filtros.orden === "precio-desc") {
         productosFiltrados.sort((a, b) => b.precio - a.precio);
+      } else if (filtros.orden === "nombre-asc") {
+        productosFiltrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      } else if (filtros.orden === "nombre-desc") {
+        productosFiltrados.sort((a, b) => b.nombre.localeCompare(a.nombre));
       }
 
       return productosFiltrados;
@@ -93,6 +98,7 @@ function Catalog() {
         <div style={{ display: "flex", gap: "1rem" }}>
           <FiltroDisponibilidad />
           <FiltroCategoria />
+          <FiltroOrden />
         </div>
       </div>
 
