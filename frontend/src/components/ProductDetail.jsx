@@ -1,7 +1,5 @@
-// frontend/src/pages/ProductDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import styles from "./ProductDetail.module.css";
 import default1 from "../assets/ImagenPorDefecto1.jpeg";
 import default2 from "../assets/ImagenPorDefecto2.jpeg";
@@ -18,22 +16,35 @@ function ProductDetail() {
   const [imagenActual, setImagenActual] = useState(0);
 
   useEffect(() => {
-    axios
-      .get(`/api/products/${id}`)
-      .then((res) => {
-        setProducto(res.data);
+    const fetchProduct = async () => {
+      try {
+        console.log(`🔄 Cargando producto con ID: ${id}`);
+        const res = await fetch(`/api/products/${id}`);
+        
+        if (!res.ok) {
+          if (res.status === 404) {
+            throw new Error("Producto no encontrado");
+          }
+          throw new Error(`Error HTTP: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log("✅ Producto cargado:", data);
+        setProducto(data);
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error al cargar producto:", err);
+      } catch (err) {
+        console.error("❌ Error al cargar producto:", err);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProduct();
   }, [id]);
 
   if (loading) return <p className={styles.loading}>Cargando...</p>;
   if (!producto) return <p className={styles.notFound}>Producto no encontrado.</p>;
 
-  // Manejo de imágenes corregido
+  // ... el resto del código se mantiene igual
   const imagenes = producto.imagenes?.length 
     ? producto.imagenes 
     : defaultImages;

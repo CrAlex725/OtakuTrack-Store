@@ -31,7 +31,7 @@ function Catalog() {
   async function fetchProductsFromApi(pageNumber) {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/products?page=${pageNumber}&limit=${PAGE_SIZE}`
+        `/api/products?page=${pageNumber}&limit=${PAGE_SIZE}`
       );
       if (!res.ok) throw new Error("Error al obtener productos");
 
