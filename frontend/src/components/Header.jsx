@@ -5,6 +5,7 @@ import logo from "../assets/logo.svg";
 import { FaSearch, FaHeart, FaShoppingCart, FaInstagram, FaGithub} from "react-icons/fa";
 import { Link } from "react-router-dom";
 
+
 function Header({ categoriasPadre = [] }) {
   return (
     <header className={styles.header}>
@@ -21,7 +22,9 @@ function Header({ categoriasPadre = [] }) {
       </div>
 
 
-      <div className={styles.link}>En Stock</div>
+      <Link to="/Descubre-mas" className={styles.navLink}>
+      Descubre Más
+      </Link>
 
       {/* Categorías padre (dinámicas) */}
       <div className={styles.categorias}>

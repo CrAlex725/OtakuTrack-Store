@@ -1,4 +1,4 @@
-// frontend/src/components/ProductsGrid.jsx
+//frontend/src/components/ProductsGrid.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ProductsGrid.module.css";
@@ -21,7 +21,7 @@ function ProductsGrid({ products }) {
           <div
             key={p._id || p.id}
             className={styles.card}
-            onClick={() => navigate(`/product/${p._id}`)}
+            onClick={() => navigate(`/${p._id}`)}
             style={{ cursor: "pointer" }}
           >
             <img src={image} alt={p.nombre} className={styles.productImage} />

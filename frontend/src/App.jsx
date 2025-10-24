@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Catalog from "./pages/Catalog";
 import Home from "./pages/Home";
 import ProductDetail from "./components/ProductDetail"; // ✅ Corregido
+import DescubreMas from "./pages/DescubreMas";
 
 function App() {
 
@@ -14,7 +15,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/catalogo" element={<Catalog />} />
-        <Route path="/producto/:id" element={<ProductDetail />} />
+        <Route path="/:id" element={<ProductDetail />} />
+        <Route path="/Descubre-mas" element={<DescubreMas/>}/>
       </Routes>
     </Router>
   );
