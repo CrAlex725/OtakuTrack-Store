@@ -36,7 +36,7 @@ services:
 
   mongo:
     image: mongo:6
-    container_name: otakutrack-mongo
+    container_name: otakutrack-mongodb
     ports:
       - "27017:27017"
     volumes:
