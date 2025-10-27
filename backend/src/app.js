@@ -1,8 +1,10 @@
-const express = require('express'); // Crea el Servidor y Maneja las rutas 
-const cors = require('cors'); //Permite al frontend (React) hacer peticiones desde otro puerto
-const productRoutes = require('./routes/ProductRoutes'); //importa products de la carpeta routes
-const categoryRoutes = require('./routes/CategoryRoutes');
-require('dotenv').config(); // lee configuraciones de .env en la raiz
+import express from "express"; // Crea el Servidor y Maneja las rutas 
+import cors from "cors"; //Permite al frontend (React) hacer peticiones desde otro puerto
+import productRoutes from "./routes/ProductRoutes.js"; //importa products de la carpeta routes
+import categoryRoutes from "./routes/CategoryRoutes.js";
+import userRoutes from "./routes/UserRoutes.js";
+import dotenv from dotenv;
+dotenv.config(); // lee configuraciones de .env en la raiz
 
 const app = express(); // Escucha peticiones HTTP y envía respuestas
 
@@ -16,6 +18,7 @@ app.use(express.json()) // hace que el servidor entienda datos .JSON
 //Rutas
 app.use('/api/products', productRoutes); //Activamos la ruta de productos
 app.use('/api/categories', categoryRoutes);
+app.use('/api/users', userRoutes)
 
 app.get('/api/health', (req, res) => res.json({
     status:'OK', message: 'Servidor funcionando'}));

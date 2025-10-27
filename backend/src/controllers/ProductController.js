@@ -1,5 +1,5 @@
 // backend/src/controllers/ProductController.js
-const Product = require('../models/ProductModel');
+import Product from "../models/ProductModel.js";
 
 // 🟢 Obtener todos los productos con filtros, búsqueda y paginación
 exports.getAllProducts = async (req, res) => {

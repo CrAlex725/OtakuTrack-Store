@@ -1,6 +1,6 @@
 // backend/src/controllers/CategoryController.js
-const Category = require('../models/CategoryModel');
-const Product = require('../models/ProductModel');
+import Category from "../models/CategoryModel,js";
+import Product from "../models/ProductModel,js";
 
 // 🟢 Obtener todas las categorías (con jerarquía)
 exports.getAllCategories = async (req, res) => {

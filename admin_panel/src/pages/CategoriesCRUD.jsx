@@ -1,55 +1,52 @@
-// src/pages/CategoriesCRUD.jsx
 import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import { getCategories, deleteCategory } from "../services/api.js";
+import CategoryForm from "../components/CategoryForm.js";
 
-export default function CategoriesCRUD() {
-  const [cats, setCats] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
+export default function Categories() {
+  const [categories, setCategories] = useState([]);
+  const [editing, setEditing] = useState(null);
+
+  const loadCategories = async () => {
+    const res = await getCategories();
+    setCategories(res.data);
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get("/api/categories"); // ajusta según tu backend
-        setCats(Array.isArray(res.data) ? res.data : res.data || []);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadCategories();
   }, []);
 
-  const createCat = async (ev) => {
-    ev.preventDefault();
-    try {
-      await api.post("/api/categories", { nombre: name });
-      setName("");
-      // reload
-      const r = await api.get("/api/categories");
-      setCats(Array.isArray(r.data) ? r.data : r.data || []);
-    } catch (e) {
-      console.error(e);
-    }
+  const handleDelete = async (id) => {
+    await deleteCategory(id);
+    loadCategories();
   };
 
   return (
-    <div style={{ padding: 16 }}>
+    <div className="admin-page">
       <h1>Categorías</h1>
-      <form onSubmit={createCat} style={{ marginBottom: 12 }}>
-        <input placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} />
-        <button type="submit">Crear</button>
-      </form>
-
-      {loading ? (
-        <div>Cargando...</div>
-      ) : (
-        <ul>
-          {cats.map((c) => (
-            <li key={c._id ?? c.id}>{c.nombre ?? c.name ?? c.title ?? "—"}</li>
+      <CategoryForm onSaved={loadCategories} editing={editing} setEditing={setEditing} />
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Slug</th>
+            <th>Tipo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((cat) => (
+            <tr key={cat._id}>
+              <td>{cat.nombre}</td>
+              <td>{cat.slug}</td>
+              <td>{cat.tipo}</td>
+              <td>
+                <button onClick={() => setEditing(cat)}>Editar</button>
+                <button onClick={() => handleDelete(cat._id)}>Eliminar</button>
+              </td>
+            </tr>
           ))}
-        </ul>
-      )}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import default2 from "../assets/ImagenPorDefecto2.jpeg";
 import default3 from "../assets/ImagenPorDefecto3.jpeg";
 import default4 from "../assets/ImagenPorDefecto4.jpeg";
 
+const API_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '';
+
 const defaultImages = [default1, default2, default3, default4];
 
 function ProductDetail() {
@@ -19,7 +21,7 @@ function ProductDetail() {
     const fetchProduct = async () => {
       try {
         console.log(`🔄 Cargando producto con ID: ${id}`);
-        const res = await fetch(`/api/products/${id}`);
+        const res = await fetch(`${API_URL || ''}/api/products/${id}`);
         
         if (!res.ok) {
           if (res.status === 404) {

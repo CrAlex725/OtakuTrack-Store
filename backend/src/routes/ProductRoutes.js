@@ -1,5 +1,5 @@
 // backend/src/routes/ProductRoutes.js
-const express = require('express');
+import express from express;
 const router = express.Router();
 const productController = require('../controllers/ProductController');
 

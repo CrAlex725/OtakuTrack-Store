@@ -1,116 +1,102 @@
 // frontend/src/pages/Catalog.jsx
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "./Catalog.module.css";
-import ProductsGrid from "../components/ProductsGrid";
-import FiltroDisponibilidad from "../components/FiltroDisponibilidad";
-import FiltroCategoria from "../components/FiltroCategoria";
-import FiltroOrden from "../components/FiltroOrden";
+import ProductsGrid from "../components/ProductsGrid.jsx";
+import { getProducts } from "../services/api.js";
 
 const PAGE_SIZE = 30;
 
 function Catalog() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  // eslint-disable-next-line no-unused-vars
+  const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(parseInt(searchParams.get('page') || '1', 10));
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [searchParams] = useSearchParams();
 
-  // 🎯 Todos los filtros combinados
-  const filtros = {
-    disponibilidad: searchParams.get("filtro_disp") || "todas",
-    categoria: searchParams.get("categoria") || "todas",
-    orden: searchParams.get("orden") || "default",
+  const readParams = () => {
+    return {
+      categoria: searchParams.get("categoria") || undefined,
+      subcategoria: searchParams.get("subcategoria") || undefined,
+      disponible: searchParams.get("disponible") || undefined,
+      minStock: searchParams.get("minStock") || undefined,
+      sort: searchParams.get("sort") || undefined,
+      page: page,
+      pageSize: PAGE_SIZE,
+      q: searchParams.get("q") || undefined
+    };
   };
 
-  useEffect(() => {
-    loadPage(1, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtros.disponibilidad, filtros.categoria, filtros.orden]);
-
-  async function fetchProductsFromApi(pageNumber) {
-    try {
-      const res = await fetch(
-        `/api/products?page=${pageNumber}&limit=${PAGE_SIZE}`
-      );
-      if (!res.ok) throw new Error("Error al obtener productos");
-
-      const data = await res.json();
-      let productosFiltrados = data.productos || [];
-
-      // 🧩 Filtro de disponibilidad
-      if (filtros.disponibilidad !== "todas") {
-        productosFiltrados = productosFiltrados.filter(
-          (p) => p.disponibilidad === filtros.disponibilidad
-        );
-      }
-
-      // 🧩 Filtro de categoría
-      if (filtros.categoria !== "todas") {
-        productosFiltrados = productosFiltrados.filter(
-          (p) => p.categoria === filtros.categoria
-        );
-      }
-
-      // 🧩 Ordenamiento
-      if (filtros.orden === "precio-asc") {
-        productosFiltrados.sort((a, b) => a.precio - b.precio);
-      } else if (filtros.orden === "precio-desc") {
-        productosFiltrados.sort((a, b) => b.precio - a.precio);
-      } else if (filtros.orden === "nombre-asc") {
-        productosFiltrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
-      } else if (filtros.orden === "nombre-desc") {
-        productosFiltrados.sort((a, b) => b.nombre.localeCompare(a.nombre));
-      }
-
-      return productosFiltrados;
-    } catch (error) {
-      console.error("❌ Error al cargar productos:", error);
-      return [];
-    }
-  }
-
-  async function loadPage(pageNumber, replace = false) {
+  const fetchProducts = useCallback(async (reset = false) => {
     setLoading(true);
-    const nuevos = await fetchProductsFromApi(pageNumber);
-
-    if (!nuevos || nuevos.length === 0) {
-      setHasMore(false);
+    const params = readParams();
+    try {
+      const data = await getProducts(params);
+      // Suponemos que la API devuelve { items: [], total: n } o un array directamente
+      const items = Array.isArray(data) ? data : (data.items || []);
+      if (reset) setProductos(items);
+      else setProductos(prev => [...prev, ...items]);
+      setHasMore(items.length === PAGE_SIZE); // simple heuristic
+    } catch (err) {
+      console.error("Error fetching products", err);
+    } finally {
       setLoading(false);
-      return;
     }
+  }, [searchParams, page]);
 
-    setProductos((prev) => (replace ? nuevos : [...prev, ...nuevos]));
-    setPage(pageNumber);
-    if (nuevos.length < PAGE_SIZE) setHasMore(false);
-    setLoading(false);
-  }
+  // cuando cambian filtros en URL, recargar desde página 1
+  useEffect(() => {
+    setPage(1);
+    fetchProducts(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.toString()]);
 
-  function handleMostrarMas() {
-    if (loading || !hasMore) return;
-    loadPage(page + 1);
-  }
+  // cuando cambia la página (mostrar más)
+  useEffect(() => {
+    if (page === 1) return;
+    fetchProducts(false);
+  }, [page, fetchProducts]);
+
+  const handleMostrarMas = () => setPage(p => p + 1);
+
+  // helpers para que los filtros modifiquen la searchParams
+  const updateFilter = (key, value) => {
+    const sp = new URLSearchParams(searchParams);
+    if (value === null || value === undefined || value === "") {
+      sp.delete(key);
+    } else {
+      sp.set(key, value);
+    }
+    // push new params to history (so back/forward works)
+    setSearchParams(sp);
+    // navigate(`?${sp.toString()}`, { replace: false }); // alternativa si quieres navigate
+  };
 
   return (
-    <div className={styles.catalogWrapper}>
-      <div className={styles.headerActions}>
-        <h2>Catálogo</h2>
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <FiltroDisponibilidad />
-          <FiltroCategoria />
-          <FiltroOrden />
-        </div>
+    <div className={styles.catalog}>
+      <h1>Catálogo</h1>
+
+      {/* Aquí van tus FiltroCategoria, FiltroDisponibilidad, FiltroOrden */}
+      {/* Los Filtro* deberían llamar updateFilter('categoria', 'figuras') etc. */}
+      <div className={styles.filters}>
+        {/* ejemplo básico: */}
+        <label>
+          Buscar:
+          <input
+            type="text"
+            value={searchParams.get('q') || ''}
+            onChange={(e)=> updateFilter('q', e.target.value)}
+          />
+        </label>
       </div>
 
       <ProductsGrid products={productos} />
 
-      <div className={styles.loadMoreWrapper}>
+      <div className={styles.actions}>
         {hasMore ? (
-          <button
-            className={styles.loadMoreBtn}
-            onClick={handleMostrarMas}
-            disabled={loading}
-          >
+          <button className={styles.loadMoreBtn} onClick={handleMostrarMas} disabled={loading}>
             {loading ? "Cargando..." : "Mostrar más"}
           </button>
         ) : (

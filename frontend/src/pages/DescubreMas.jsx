@@ -1,42 +1,37 @@
+// frontend/src/pages/DescubreMas.jsx
 import React, { useEffect, useState } from "react";
-import ProductsGrid from "../components/ProductsGrid";
+import ProductsGrid from "../components/ProductsGrid.jsx";
 import styles from "./DescubreMas.module.css";
+import { getProducts, getCurrentUser } from "../services/api.js";
 
 function DescubreMas() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const load = async () => {
+      setLoading(true);
       try {
-        console.log("🔄 Cargando productos desde DescubreMas...");
-        
-        // ✅ Usar ruta relativa - el proxy de Vite se encargará del redireccionamiento
-        const res = await fetch("/api/products");
-        
-        if (!res.ok) {
-          throw new Error(`Error HTTP: ${res.status}`);
+        // Intentamos obtener preferencias del usuario
+        const user = await getCurrentUser();
+        let params = { page: 1, pageSize: 60, sort: "stock_desc" };
+
+        // Si el backend devuelve preferencias/historial con categorías vistas
+        if (user && user.preferencias && user.preferencias.categoriasVistas?.length) {
+          params.categoria = user.preferencias.categoriasVistas[0]; // ejemplo: priorizar la primera categoría vista
         }
-        
-        const data = await res.json();
-        console.log("✅ Respuesta completa:", data);
-        
-        const productosData = data.productos || [];
-        console.log("📦 Productos extraídos:", productosData);
 
-        const sorted = productosData
-          .sort((a, b) => b.stock - a.stock)
-          .slice(0, 30);
-
-        setProducts(sorted);
-        setLoading(false);
+        // Si no hay user o preferencias, fallback: top por stock
+        const data = await getProducts(params);
+        const items = Array.isArray(data) ? data : (data.items || []);
+        setProducts(items);
       } catch (err) {
-        console.error("❌ Error al cargar productos en Descubre Más:", err);
+        console.error("Error en DescubreMas:", err);
+      } finally {
         setLoading(false);
       }
     };
-
-    fetchProducts();
+    load();
   }, []);
 
   if (loading) return <p className={styles.loading}>Cargando productos...</p>;

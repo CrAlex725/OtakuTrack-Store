@@ -1,40 +1,106 @@
-// backend/src/models/Product.js
+import mongoose from "mongoose";
 
-const mongoose = require('mongoose'); // importamos mongoose al archivo
-
-// 1️⃣ Definimos la estructura (esquema/Schema) de un producto:
 const productSchema = new mongoose.Schema({
+  _id: {
+     type: String,
+      required: true 
+    }, // SKU
+
   nombre: {
-    type: String,       // el tipo de dato (texto)
-    required: true      // campo obligatorio
-  },
-  descripcion: {
-    type: String,       // breve texto descriptivo
-    required: false
-  },
+     type: String, 
+     required: true 
+    },
+
+  slug: {
+     type: String, 
+     required: true, 
+     unique: true 
+    },
+
+  descripcion_larga: {
+     type: String 
+    },
+
   precio: {
-    type: Number,       // número (en pesos chilenos o la moneda que uses)
-    required: true
-  },
-  imagen: {
-    type: String,       // URL o ruta de la imagen del producto
-    required: false
-  },
-  categoria: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref:'Category',       // Ej: “Naruto”, “One Piece”, “Kimetsu no Yaiba”
-    required: false
-  },
+     type: Number, 
+     required: true 
+    },
+
+  precio_descuento: {
+     type: Number 
+    },
+
   stock: {
-    type: Number,       // cuántas unidades hay disponibles
-    default: 0          // valor por defecto
+     type: Number,
+      default: 0 
+    },
+
+  categoria_id: {
+     type: mongoose.Schema.Types.ObjectId, 
+     ref: "Category", 
+     required: true 
+    },
+
+  subcategoria_id: {
+     type: mongoose.Schema.Types.ObjectId, 
+     ref: "Category" 
+    },
+
+  imagen_principal: {
+     type: String 
+    },
+
+  galeria_imagenes: [
+    { type: String }
+  ],
+
+  estado: { 
+    type: String, 
+    enum: ["activo", "inactivo"], 
+    default: "activo" 
   },
-}, {
-  timestamps: true // agrega automáticamente 'createdAt' y 'updatedAt'
-});
 
-// 2️⃣ Creamos el modelo 'Product' a partir del esquema
-const Product = mongoose.model('Product', productSchema);
+  destacado: {
+     type: Boolean, 
+     default: false 
+    },
 
-// 3️⃣ Lo exportamos para usarlo en otras partes del proyecto
-module.exports = Product;
+  meta_tags: [
+    { type: String }
+  ],
+
+  fecha_creacion: {
+     type: Date, 
+     default: Date.now 
+    },
+
+  fecha_actualizacion: {
+     type: Date, 
+     default: Date.now 
+    },
+  // Campos específicos para figuras
+  altura_cm: {
+     type: Number 
+    },
+  fabricante: {
+     type: String 
+    },
+
+  serie: {
+     type: String 
+    },
+
+  material: {
+     type: String 
+    },
+
+  articulaciones: {
+     type: Boolean 
+    },
+
+  accesorios_incluidos: { 
+    type: String 
+  },
+}, { timestamps: true });
+
+export default mongoose.model("Product", productSchema);
