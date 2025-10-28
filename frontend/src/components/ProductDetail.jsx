@@ -21,7 +21,7 @@ function ProductDetail() {
     const fetchProduct = async () => {
       try {
         console.log(`🔄 Cargando producto con ID: ${id}`);
-        const res = await fetch(`${API_URL || ''}/api/products/${id}`);
+        const res = await fetch(`${API_URL}/api/products/${id}`);
         
         if (!res.ok) {
           if (res.status === 404) {

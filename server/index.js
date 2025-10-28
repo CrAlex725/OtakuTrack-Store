@@ -1,35 +1,37 @@
 // server/index.js
-// Minimal Express server to serve /api/products and /api/products/:id for local development.
+// Mock Express server returning Spanish field names compatible with backend models
 
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json());
 
 const products = [
-  { id: '1', title: 'Figura Nendoroid - Ejemplo', price: 29.99, stock: 10, descripcion: 'Figura coleccionable', categoria: 'Figuras', images: [] },
-  { id: '2', title: 'Manga Vol.1 - Ejemplo', price: 9.99, stock: 5, descripcion: 'Manga en español', categoria: 'Manga', images: [] },
-  { id: '3', title: 'Camiseta Anime - Ejemplo', price: 19.99, stock: 0, descripcion: 'Camiseta talla M', categoria: 'Ropa', images: [] }
+  { id: '1', nombre: 'Figura Nendoroid - Ejemplo', precio: 29990, stock: 10, descripcion: 'Figura coleccionable', categoria: 'Figuras', images: [] },
+  { id: '2', nombre: 'Manga Vol.1 - Ejemplo', precio: 9990, stock: 5, descripcion: 'Manga en español', categoria: 'Manga', images: [] },
+  { id: '3', nombre: 'Camiseta Anime - Ejemplo', precio: 19990, stock: 0, descripcion: 'Camiseta talla M', categoria: 'Ropa', images: [] }
 ];
 
 app.get('/api/products', (req, res) => {
-  const { page = 1, pageSize = 20, categoria, q } = req.query;
+  const { page = 1, limit = 20, categoria, search } = req.query;
   let items = products.slice();
 
-  if (categoria) items = items.filter(p => String(p.categoria).toLowerCase() === String(categoria).toLowerCase());
-  if (q) {
-    const ql = String(q).toLowerCase();
-    items = items.filter(p => (p.title && p.title.toLowerCase().includes(ql)) || (p.descripcion && p.descripcion.toLowerCase().includes(ql)));
+  if (categoria) {
+    items = items.filter(p => String(p.categoria).toLowerCase() === String(categoria).toLowerCase());
+  }
+  if (search) {
+    const q = String(search).toLowerCase();
+    items = items.filter(p => (p.nombre && p.nombre.toLowerCase().includes(q)) || (p.descripcion && p.descripcion.toLowerCase().includes(q)));
   }
 
   const total = items.length;
-  const p = Math.max(1, parseInt(page,10));
-  const ps = Math.max(1, parseInt(pageSize,10));
-  const start = (p-1)*ps;
-  const pageItems = items.slice(start, start+ps);
+  const p = Math.max(1, parseInt(page, 10));
+  const lim = Math.max(1, parseInt(limit, 10));
+  const start = (p - 1) * lim;
+  const pageItems = items.slice(start, start + lim);
 
   res.json({ items: pageItems, total });
 });

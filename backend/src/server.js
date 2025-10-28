@@ -1,17 +1,17 @@
 // backend/src/server.js
-import dotenv from dotenv
-dotenv.config(); 
-const connectDB = require('./config/db');
-const app = require('./app');
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import app from "./app.js";
+
+dotenv.config();
 
 const PORT = process.env.PORT || 3001;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/otakutrack";
 
-//Conexion a la base de Datos
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  });
-}).catch(error => {
-  console.error('❌ No se pudo iniciar la aplicación:', error);
-  process.exit(1);
-});
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("✅ Conectado a MongoDB correctamente");
+    app.listen(PORT, () => console.log(`🚀 Backend escuchando en http://localhost:${PORT}`));
+  })
+  .catch((err) => console.error("❌ Error al conectar a MongoDB:", err));

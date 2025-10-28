@@ -1,3 +1,4 @@
+//frontend/vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -9,7 +10,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://backend:3001',
+        target: process.env.BACKEND_URL || 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
         // eslint-disable-next-line no-unused-vars

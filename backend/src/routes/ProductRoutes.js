@@ -1,16 +1,24 @@
 // backend/src/routes/ProductRoutes.js
-import express from express;
+import express from "express";
+import {
+  getAllProducts,
+  createProduct,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  getProductsByCategory
+} from "../controllers/ProductController.js";
+
 const router = express.Router();
-const productController = require('../controllers/ProductController');
 
 // 🟢 RUTAS ESPECÍFICAS PRIMERO
-router.get('/category/:categoryId', productController.getProductsByCategory);
+router.get("/category/:categoryId", getProductsByCategory);
 
-// 🟢 RUTAS DINÁMICAS DESPUÉS
-router.get('/', productController.getAllProducts);
-router.post('/', productController.createProduct);
-router.get('/:id', productController.getProductById);
-router.put('/:id', productController.updateProduct);
-router.delete('/:id', productController.deleteProduct);
+// 🟢 RUTAS CRUD
+router.get("/", getAllProducts);
+router.post("/", createProduct);
+router.get("/:id", getProductById);
+router.put("/:id", updateProduct);
+router.delete("/:id", deleteProduct);
 
-module.exports = router;
+export default router;

@@ -1,43 +1,35 @@
 // backend/src/controllers/ProductController.js
 import Product from "../models/ProductModel.js";
+import Category from "../models/CategoryModel.js"; // 🔥 Import faltante
 
 // 🟢 Obtener todos los productos con filtros, búsqueda y paginación
-exports.getAllProducts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
     const { search, categoria, minPrecio, maxPrecio, page = 1, limit = 10, sort } = req.query;
 
     const filtro = {};
 
-    // 🔍 Buscar por nombre o descripción (insensible a mayúsculas)
     if (search) {
       filtro.$or = [
-        { nombre: { $regex: search, $options: 'i' } },
-        { descripcion: { $regex: search, $options: 'i' } }
+        { nombre: { $regex: search, $options: "i" } },
+        { descripcion: { $regex: search, $options: "i" } }
       ];
     }
 
-    // 🏷️ Filtrar por categoría (y sus subcategorías)
-    if (categoria) {
-      filtro.categoria = categoria;
-    }
+    if (categoria) filtro.categoria = categoria;
 
-    // 💰 Filtrar por rango de precio
     if (minPrecio || maxPrecio) {
       filtro.precio = {};
       if (minPrecio) filtro.precio.$gte = Number(minPrecio);
       if (maxPrecio) filtro.precio.$lte = Number(maxPrecio);
     }
 
-    // 📄 Paginación
     const skip = (Number(page) - 1) * Number(limit);
+    const orden = sort ? sort.replace(",", " ") : "-createdAt";
 
-    // 🔽 Orden (por ejemplo: ?sort=precio o ?sort=-precio para descendente)
-    const orden = sort ? sort.replace(',', ' ') : '-createdAt';
-
-    // 🧾 Ejecutamos la consulta
     const [productos, total] = await Promise.all([
       Product.find(filtro)
-        .populate('categoria', 'nombre descripcion')
+        .populate("categoria", "nombre descripcion")
         .sort(orden)
         .skip(skip)
         .limit(Number(limit)),
@@ -51,27 +43,25 @@ exports.getAllProducts = async (req, res) => {
       productos
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener productos', details: error.message });
+    res.status(500).json({ error: "Error al obtener productos", details: error.message });
   }
 };
 
 // 🟢 Crear producto
-exports.createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
     const { nombre, descripcion, precio, imagen, stock, categoria } = req.body;
 
-    // Si se envía una categoría, validar que exista
     if (categoria) {
       const exists = await Category.findById(categoria);
       if (!exists) {
-        return res.status(400).json({ error: 'La categoría especificada no existe' });
+        return res.status(400).json({ error: "La categoría especificada no existe" });
       }
 
-      // ✅ Validar que la categoría no tenga subcategorías
       const tieneHijos = await Category.exists({ parent: categoria });
       if (tieneHijos) {
         return res.status(400).json({
-          error: 'No se puede crear un producto en una categoría que tiene subcategorías. Seleccione una categoría hoja.'
+          error: "No se puede crear un producto en una categoría que tiene subcategorías. Seleccione una categoría hoja."
         });
       }
     }
@@ -82,66 +72,65 @@ exports.createProduct = async (req, res) => {
       precio,
       imagen,
       stock,
-      categoria,
+      categoria
     });
 
     const saved = await newProduct.save();
     res.status(201).json(saved);
 
   } catch (error) {
-    res.status(400).json({ error: 'Error al crear producto', details: error.message });
+    res.status(400).json({ error: "Error al crear producto", details: error.message });
   }
 };
 
 // 🟢 Obtener por ID
-exports.getProductById = async (req, res) => {
+export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('categoria', 'nombre descripcion');
-    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+    const product = await Product.findById(req.params.id).populate("categoria", "nombre descripcion");
+    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
     res.json(product);
   } catch (error) {
-    res.status(400).json({ error: 'Error al buscar producto', details: error.message });
+    res.status(400).json({ error: "Error al buscar producto", details: error.message });
   }
 };
 
-// 🟢 Actualizar
-exports.updateProduct = async (req, res) => {
+// 🟢 Actualizar producto
+export const updateProduct = async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    .populate('categoria', 'nombre descripcion');
+      .populate("categoria", "nombre descripcion");
     res.json(updated);
   } catch (error) {
-    res.status(400).json({ error: 'Error al actualizar producto', details: error.message });
+    res.status(400).json({ error: "Error al actualizar producto", details: error.message });
   }
 };
 
-// 🟢 Eliminar
-exports.deleteProduct = async (req, res) => {
+// 🟢 Eliminar producto
+export const deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Producto eliminado correctamente' });
+    res.json({ message: "Producto eliminado correctamente" });
   } catch (error) {
-    res.status(400).json({ error: 'Error al eliminar producto', details: error.message });
+    res.status(400).json({ error: "Error al eliminar producto", details: error.message });
   }
 };
 
 // 🟣 Obtener productos por categoría
-exports.getProductsByCategory = async (req, res) => {
+export const getProductsByCategory = async (req, res) => {
   try {
-    // La ruta usa :categoryId — usar el mismo nombre aquí
     const { categoryId } = req.params;
-    if(!categoryId) {
-      return res.status(400).json({ error: 'categoryId es requerido' });
+    if (!categoryId) {
+      return res.status(400).json({ error: "categoryId es requerido" });
     }
 
-    const products = await Product.find({ categoria: categoryId }).populate('categoria', 'nombre');
+    const products = await Product.find({ categoria: categoryId }).populate("categoria", "nombre");
 
     if (products.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron productos en esta categoría' });
+      return res.status(404).json({ message: "No se encontraron productos en esta categoría" });
     }
 
     res.json(products);
   } catch (error) {
-    res.status(400).json({ error: 'Error al obtener productos por categoría', details: error.message });
+    res.status(400).json({ error: "Error al obtener productos por categoría", details: error.message });
   }
-};;
+};
