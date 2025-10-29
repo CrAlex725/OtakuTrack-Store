@@ -1,15 +1,14 @@
 // frontend/src/services/api.js
-// Gestiona las llamadas a la API del servidor mock (http://localhost:3001/api)
-
 import axios from "../api/axiosConfig";
 
 /**
- * params: { categoria, q, page, pageSize, minPrecio, maxPrecio, sort }
+ * getProducts espera params: { categoria, q, page, pageSize, minPrecio, maxPrecio, sort }
+ * Mapea a lo que el backend espera y además normaliza la respuesta (items/productos).
  */
 export async function getProducts(params = {}) {
   const p = {};
   if (params.page) p.page = params.page;
-  if (params.pageSize) p.limit = params.pageSize; // backend expects 'limit'
+  if (params.pageSize) p.limit = params.pageSize; // backend uses 'limit'
   if (params.categoria) p.categoria = params.categoria;
   if (params.q) p.search = params.q;
   if (params.minPrecio) p.minPrecio = params.minPrecio;
@@ -17,17 +16,22 @@ export async function getProducts(params = {}) {
   if (params.sort) p.sort = params.sort;
 
   const res = await axios.get('/products', { params: p });
-  return res.data; // backend returns either array or { items, total }
+  const data = res.data || {};
+
+  // Normalizar respuesta: soportar { items, total } o { productos, total }
+  const items = Array.isArray(data) ? data : (data.items || data.productos || []);
+  const total = data.total || (Array.isArray(data) ? data.length : 0);
+
+  return { items, total, raw: data };
 }
 
-// Obtener un producto por ID
 export async function getProductById(id) {
   const res = await axios.get(`/products/${id}`);
   return res.data;
 }
 
-// Obtener categorías (mock manual por ahora)
 export async function getCategories() {
+  // Puedes reemplazar por llamada real si backend expone /api/categories
   return [
     { id: 1, nombre: 'Figuras' },
     { id: 2, nombre: 'Manga' },
@@ -36,9 +40,5 @@ export async function getCategories() {
 }
 
 export async function getCurrentUser() {
-  return {
-    id: 1,
-    name: 'Invitado',
-    email: 'invitado@otakutrack.com'
-  };
+  return { id: 1, name: 'Invitado', email: 'invitado@otakutrack.com' };
 }

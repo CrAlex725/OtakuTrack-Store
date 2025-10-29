@@ -1,16 +1,17 @@
+//frontend/src/components/ProductDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./ProductDetail.module.css";
+import { getProductById } from "../services/api.js";
+
 import default1 from "../assets/ImagenPorDefecto1.jpeg";
 import default2 from "../assets/ImagenPorDefecto2.jpeg";
 import default3 from "../assets/ImagenPorDefecto3.jpeg";
 import default4 from "../assets/ImagenPorDefecto4.jpeg";
 
-const API_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '';
-
 const defaultImages = [default1, default2, default3, default4];
 
-function ProductDetail() {
+const ProductDetail = () => {
   const { id } = useParams();
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,37 +21,25 @@ function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log(`🔄 Cargando producto con ID: ${id}`);
-        const res = await fetch(`${API_URL}/api/products/${id}`);
-        
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error("Producto no encontrado");
-          }
-          throw new Error(`Error HTTP: ${res.status}`);
-        }
-        
-        const data = await res.json();
-        console.log("✅ Producto cargado:", data);
-        setProducto(data);
-        setLoading(false);
-      } catch (err) {
-        console.error("❌ Error al cargar producto:", err);
+        if (!id) throw new Error("ID inválido o indefinido");
+        const data = await getProductById(id);
+        const productoData = data?.producto || data || null;
+        if (!productoData || Object.keys(productoData).length === 0)
+          throw new Error("Producto no encontrado");
+        setProducto(productoData);
+      } catch (error) {
+        console.error("❌ Error al cargar producto:", error);
+      } finally {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id]);
 
   if (loading) return <p className={styles.loading}>Cargando...</p>;
   if (!producto) return <p className={styles.notFound}>Producto no encontrado.</p>;
 
-  // ... el resto del código se mantiene igual
-  const imagenes = producto.imagenes?.length 
-    ? producto.imagenes 
-    : defaultImages;
-
+  const imagenes = producto.imagenes?.length ? producto.imagenes : defaultImages;
   const selectedImage = imagenes[imagenActual];
 
   const handleCantidadChange = (e) => {
@@ -62,50 +51,27 @@ function ProductDetail() {
     alert(`Agregado ${cantidad} ${producto.nombre}(s) al carrito 🛒`);
   };
 
-  const handlePrev = () => {
-    setImagenActual((prev) =>
-      prev === 0 ? imagenes.length - 1 : prev - 1
-    );
-  };
-
-  const handleNext = () => {
-    setImagenActual((prev) =>
-      prev === imagenes.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const handleThumbnailClick = (index) => {
-    setImagenActual(index);
-  };
+  const handlePrev = () => setImagenActual((p) => (p === 0 ? imagenes.length - 1 : p - 1));
+  const handleNext = () => setImagenActual((p) => (p === imagenes.length - 1 ? 0 : p + 1));
+  const handleThumbnailClick = (i) => setImagenActual(i);
 
   return (
     <div className={styles.productDetail}>
       <div className={styles.mainSection}>
         <div className={styles.imageContainer}>
           <div className={styles.mainImageWrapper}>
-            <img 
-              src={selectedImage} 
-              alt={producto.nombre} 
-              className={styles.productImage} 
-            />
+            <img src={selectedImage} alt={producto.nombre} className={styles.productImage} />
             {imagenes.length > 1 && (
               <>
-                <button 
-                  className={`${styles.navButton} ${styles.prevButton}`} 
-                  onClick={handlePrev}
-                >
+                <button className={`${styles.navButton} ${styles.prevButton}`} onClick={handlePrev}>
                   ‹
                 </button>
-                <button 
-                  className={`${styles.navButton} ${styles.nextButton}`} 
-                  onClick={handleNext}
-                >
+                <button className={`${styles.navButton} ${styles.nextButton}`} onClick={handleNext}>
                   ›
                 </button>
               </>
             )}
           </div>
-          
           <div className={styles.thumbnailRow}>
             {imagenes.map((img, i) => (
               <img
@@ -122,10 +88,10 @@ function ProductDetail() {
         <div className={styles.infoContainer}>
           <h1 className={styles.nombre}>{producto.nombre}</h1>
           <p className={styles.precio}>💰 ${producto.precio}</p>
-          <p><strong>ID del Producto:</strong> {producto._id}</p>
+          <p><strong>ID del Producto:</strong> {producto._id || producto.id}</p>
           <p><strong>Stock Disponible:</strong> {producto.stock}</p>
           <p>
-            <strong>Categoría(s):</strong>{" "}
+            <strong>Categoría:</strong>{" "}
             {Array.isArray(producto.categoria)
               ? producto.categoria.map((c) => c.nombre).join(", ")
               : producto.categoria?.nombre || "Sin categoría"}
@@ -144,46 +110,17 @@ function ProductDetail() {
             />
           </div>
 
-          <button 
-            className={styles.addToCartBtn} 
+          <button
+            className={styles.addToCartBtn}
             onClick={handleAgregarCarrito}
             disabled={producto.stock === 0}
           >
             {producto.stock === 0 ? "❌ Sin stock" : "🛒 Agregar al carrito"}
           </button>
-
-          <div className={styles.reseña}>
-            <strong>Reseña:</strong>
-            <div className={styles.estrellas}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i}>⭐</span>
-              ))}
-              <span className={styles.ninja}>🥷</span>
-            </div>
-          </div>
-
-          <p className={styles.descripcion}>
-            <strong>Descripción:</strong> {producto.descripcion}
-          </p>
-        </div>
-      </div>
-
-      <div className={styles.relatedSection}>
-        <h2>Productos Relacionados</h2>
-        <div className={styles.carousel}>
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className={styles.relatedCard}>
-              <img 
-                src={defaultImages[i % defaultImages.length]} 
-                alt={`Producto ${i + 1}`} 
-              />
-              <p>Producto relacionado #{i + 1}</p>
-            </div>
-          ))}
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default ProductDetail;

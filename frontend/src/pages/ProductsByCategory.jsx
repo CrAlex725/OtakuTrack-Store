@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProductsByCategory } from "../services/api.js";
+import { Link } from "react-router-dom";
 
 const ProductsByCategory = () => {
   const { id } = useParams();
@@ -51,14 +52,12 @@ const ProductsByCategory = () => {
               />
               <h3 className="mt-2 text-lg font-semibold">{prod.nombre}</h3>
               <p className="text-gray-600">${prod.precio?.toFixed(2) ?? "—"}</p>
-              <button
-                onClick={() =>
-                  alert(`Has comprado ${prod.nombre} por $${prod.precio}`)
-                }
-                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Comprar 🛒
-              </button>
+              <Link
+                to={`/producto/${prod._id}`}
+                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 block text-center"
+                >
+                  Ver Detalle 🛍️
+              </Link>
             </div>
           ))}
         </div>

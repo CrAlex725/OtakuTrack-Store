@@ -1,22 +1,20 @@
 // backend/src/routes/CategoryRoutes.js
-import express from express;
-const router = express.Router();
-const {
-  getAllCategories,
+import express from "express";
+import {
   createCategory,
+  getCategories,
   getCategoryById,
   updateCategory,
-  deleteCategory,
-  getCategoryTree,
-  getProductsByCategory
-} = require('../controllers/CategoryController');
+  deleteCategory
+} from "../controllers/CategoryController.js";
 
-router.get('/', getAllCategories);
-router.post('/', createCategory);
-router.get('/tree', getCategoryTree);
-router.get('/:id', getCategoryById);
-router.get('/:id/products', getProductsByCategory);
-router.put('/:id', updateCategory);
-router.delete('/:id', deleteCategory);
+const router = express.Router();
 
-module.exports = router;
+// ✅ Rutas CRUD
+router.post("/", createCategory);
+router.get("/", getCategories);
+router.get("/:id", getCategoryById);
+router.put("/:id", updateCategory);
+router.delete("/:id", deleteCategory);
+
+export default router;

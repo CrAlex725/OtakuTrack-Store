@@ -33,9 +33,8 @@ function Catalog() {
     setLoading(true);
     const params = readParams();
     try {
-      const data = await getProducts(params);
-      // Suponemos que la API devuelve { items: [], total: n } o un array directamente
-      const items = Array.isArray(data) ? data : (data.items || []);
+      const result = await getProducts(params);
+      const items = result.items || [];
       if (reset) setProductos(items);
       else setProductos(prev => [...prev, ...items]);
       setHasMore(items.length === PAGE_SIZE); // simple heuristic

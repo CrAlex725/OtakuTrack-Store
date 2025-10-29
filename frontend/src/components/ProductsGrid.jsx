@@ -21,7 +21,7 @@ function ProductsGrid({ products }) {
           <div
             key={p._id || p.id}
             className={styles.card}
-            onClick={() => navigate(`/${p._id}`)}
+            onClick={() => navigate(`/producto/${p._id || p.id}`)}
             style={{ cursor: "pointer" }}
           >
             <img src={image} alt={p.nombre} className={styles.productImage} />

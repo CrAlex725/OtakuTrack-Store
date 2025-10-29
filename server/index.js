@@ -10,9 +10,9 @@ app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json());
 
 const products = [
-  { id: '1', nombre: 'Figura Nendoroid - Ejemplo', precio: 29990, stock: 10, descripcion: 'Figura coleccionable', categoria: 'Figuras', images: [] },
-  { id: '2', nombre: 'Manga Vol.1 - Ejemplo', precio: 9990, stock: 5, descripcion: 'Manga en español', categoria: 'Manga', images: [] },
-  { id: '3', nombre: 'Camiseta Anime - Ejemplo', precio: 19990, stock: 0, descripcion: 'Camiseta talla M', categoria: 'Ropa', images: [] }
+  { id: '1', _id: '1', nombre: 'Figura Nendoroid - Ejemplo', precio: 29990, stock: 10, descripcion: 'Figura coleccionable', categoria: 'Figuras', images: [] },
+  { id: '2', _id: '2', nombre: 'Manga Vol.1 - Ejemplo', precio: 9990, stock: 5, descripcion: 'Manga en español', categoria: 'Manga', images: [] },
+  { id: '3', _id: '3', nombre: 'Camiseta Anime - Ejemplo', precio: 19990, stock: 0, descripcion: 'Camiseta talla M', categoria: 'Ropa', images: [] }
 ];
 
 app.get('/api/products', (req, res) => {
@@ -38,7 +38,7 @@ app.get('/api/products', (req, res) => {
 
 app.get('/api/products/:id', (req, res) => {
   const id = String(req.params.id);
-  const prod = products.find(p => String(p.id) === id);
+  const prod = products.find(p => String(p._id) === id || String(p.id) === id);
   if (!prod) return res.status(404).json({ message: 'Producto no encontrado' });
   res.json(prod);
 });

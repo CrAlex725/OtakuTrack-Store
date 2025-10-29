@@ -23,21 +23,21 @@ const CategoryList = () => {
   }, []);
 
   // 🟢 Función recursiva para renderizar jerarquía de categorías
-  const renderCategories = (cats) => (
-    <ul className="ml-4">
-      {cats.map((cat) => (
-        <li key={cat._id} className="mb-1">
-          <button
-            onClick={() => handleCategoryClick(cat)}
-            className="text-left w-full px-2 py-1 rounded hover:bg-blue-100"
-          >
-            {cat.nombre}
-          </button>
-          {cat.children && cat.children.length > 0 && renderCategories(cat.children)}
-        </li>
-      ))}
-    </ul>
-  );
+const renderCategories = (cats) => (
+  <ul className="ml-4">
+    {cats.map((cat, index) => (
+      <li key={cat._id || index} className="mb-1">
+        <button
+          onClick={() => handleCategoryClick(cat)}
+          className="text-left w-full px-2 py-1 rounded hover:bg-blue-100"
+        >
+          {cat.nombre}
+        </button>
+        {cat.children && cat.children.length > 0 && renderCategories(cat.children)}
+      </li>
+    ))}
+  </ul>
+);
 
   // 🟢 Al hacer clic en una categoría
   const handleCategoryClick = (category) => {

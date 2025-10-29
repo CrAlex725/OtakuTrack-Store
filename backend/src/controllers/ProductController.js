@@ -37,10 +37,11 @@ export const getAllProducts = async (req, res) => {
     ]);
 
     res.json({
+      items: productos,
       total,
       page: Number(page),
       totalPages: Math.ceil(total / Number(limit)),
-      productos
+      
     });
   } catch (error) {
     res.status(500).json({ error: "Error al obtener productos", details: error.message });
