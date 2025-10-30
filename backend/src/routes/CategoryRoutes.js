@@ -5,7 +5,8 @@ import {
   getCategories,
   getCategoryById,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getParentCategories
 } from "../controllers/CategoryController.js";
 
 const router = express.Router();
@@ -13,6 +14,9 @@ const router = express.Router();
 // ✅ Rutas CRUD
 router.post("/", createCategory);
 router.get("/", getCategories);
+
+router.get("/padre", getParentCategories);
+
 router.get("/:id", getCategoryById);
 router.put("/:id", updateCategory);
 router.delete("/:id", deleteCategory);

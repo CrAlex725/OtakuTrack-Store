@@ -108,3 +108,14 @@ export const deleteCategory = async (req, res) => {
     res.status(500).json({ message: "Error al eliminar categoría" });
   }
 };
+
+// 🟢 Obtener solo las categorías padre
+export const getParentCategories = async (req, res) => {
+  try {
+    const parentCategories = await Category.find({ categoria_padre_id: null });
+    res.json(parentCategories);
+  } catch (error) {
+    console.error("❌ Error al obtener categorías padre:", error);
+    res.status(500).json({ message: "Error al obtener categorías padre" });
+  }
+};
