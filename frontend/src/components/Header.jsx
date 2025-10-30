@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 
 
 function Header({ categoriasPadre = [] }) {
+  console.log("Categorías recibidas:", categoriasPadre); // ← Añade esto
   return (
     <header className={styles.header}>
       {/* Secciones principales */}
@@ -31,7 +32,7 @@ function Header({ categoriasPadre = [] }) {
         {categoriasPadre.length > 0 ? (
           categoriasPadre.map((cat, index) => (
             <span key={index} className={styles.categoriaItem}>
-              {cat}
+              {cat.nombre}
             </span>
           ))
         ) : (

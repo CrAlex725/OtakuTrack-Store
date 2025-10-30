@@ -5,12 +5,55 @@ import Product from "../models/ProductModel.js";
 // 🟢 Crear categoría
 export const createCategory = async (req, res) => {
   try {
-    const category = new Category(req.body);
-    await category.save();
-    res.status(201).json(category);
+    const { nombre, slug, tipo, categoria_padre_id, children, ...rest } = req.body;
+
+    // 🟢 Crear la categoría principal
+    const parentCategory = new Category({
+      nombre,
+      slug,
+      tipo: tipo || "principal",
+      categoria_padre_id: categoria_padre_id || null,
+      ...rest,
+    });
+
+    const savedParent = await parentCategory.save();
+
+    // 🧩 Si hay subcategorías, las guardamos recursivamente
+    if (children && Array.isArray(children) && children.length > 0) {
+      await saveChildrenRecursively(children, savedParent._id);
+    }
+
+    // 🔁 Recuperamos toda la jerarquía recién creada
+    const fullCategory = await Category.findById(savedParent._id);
+
+    res.status(201).json(fullCategory);
   } catch (error) {
     console.error("❌ Error al crear categoría:", error);
     res.status(500).json({ message: "Error al crear categoría" });
+  }
+};
+
+/**
+ * 🔄 Guarda hijos recursivamente, asignando categoria_padre_id al padre correspondiente.
+ */
+const saveChildrenRecursively = async (children, parentId) => {
+  for (const child of children) {
+    const { nombre, slug, tipo, children: subchildren, ...rest } = child;
+
+    const newCategory = new Category({
+      nombre,
+      slug,
+      tipo: tipo || "subcategoria",
+      categoria_padre_id: parentId,
+      ...rest,
+    });
+
+    const saved = await newCategory.save();
+
+    // Si el hijo tiene más subniveles, se guardan también
+    if (subchildren && Array.isArray(subchildren) && subchildren.length > 0) {
+      await saveChildrenRecursively(subchildren, saved._id);
+    }
   }
 };
 

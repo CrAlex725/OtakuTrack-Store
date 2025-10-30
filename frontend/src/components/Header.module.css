@@ -34,24 +34,27 @@
 
 .categorias {
   display: flex;
+  justify-content: center; /* Centra las categorías */
   align-items: center;
-  gap: 12px;
-  margin-left: 40px;
-  flex-grow: 1; /* Toma el espacio restante */
+  gap: 1rem; /* Espacio entre categorías */
+  flex-wrap: wrap; /* Por si hay muchas, que se vayan a la siguiente línea */
+  margin-top: 1rem;
 }
 
 .categoriaItem {
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffffff;
+  cursor: default;
+  transition: color 0.2s ease-in-out;
 }
 
 .categoriaItem:hover {
-  color: #A9CCE3;
+  color: #00bcd4; /* Un color sutil al pasar el mouse */
 }
 
 .sinCategorias {
-  opacity: 0.6;
+  color: #aaa;
   font-style: italic;
 }
 
