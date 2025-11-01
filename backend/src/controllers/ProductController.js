@@ -1,137 +1,139 @@
+
 // backend/src/controllers/ProductController.js
 import Product from "../models/ProductModel.js";
-import Category from "../models/CategoryModel.js"; // 🔥 Import faltante
+import Category from "../models/CategoryModel.js";
 
-// 🟢 Obtener todos los productos con filtros, búsqueda y paginación
+// Obtener todos los productos con filtros, búsqueda y paginación
 export const getAllProducts = async (req, res) => {
   try {
-    const { search, categoria, minPrecio, maxPrecio, page = 1, limit = 10, sort } = req.query;
-
+    const { search, categoria, minPrecio, maxPrecio, page = 1, limit = 50, sort } = req.query;
     const filtro = {};
 
     if (search) {
       filtro.$or = [
         { nombre: { $regex: search, $options: "i" } },
-        { descripcion: { $regex: search, $options: "i" } }
+        { descripcion: { $regex: search, $options: "i" } },
+        { slug: { $regex: search, $options: "i" } }
       ];
     }
 
-    if (categoria) filtro.categoria = categoria;
-
-    if (minPrecio || maxPrecio) {
-      filtro.precio = {};
-      if (minPrecio) filtro.precio.$gte = Number(minPrecio);
-      if (maxPrecio) filtro.precio.$lte = Number(maxPrecio);
+    if (categoria) {
+      filtro.categoria = categoria;
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
-    const orden = sort ? sort.replace(",", " ") : "-createdAt";
+    if (minPrecio) filtro.precio = { ...filtro.precio, $gte: Number(minPrecio) };
+    if (maxPrecio) filtro.precio = { ...filtro.precio, $lte: Number(maxPrecio) };
 
-    const [productos, total] = await Promise.all([
-      Product.find(filtro)
-        .populate("categoria", "nombre descripcion")
-        .sort(orden)
-        .skip(skip)
-        .limit(Number(limit)),
-      Product.countDocuments(filtro)
-    ]);
+    let q = Product.find(filtro).populate("categoria", "nombre slug");
 
-    res.json({
-      items: productos,
-      total,
-      page: Number(page),
-      totalPages: Math.ceil(total / Number(limit)),
-      
-    });
+    // sorting
+    if (sort) {
+      q = q.sort(sort);
+    } else {
+      q = q.sort({ createdAt: -1 });
+    }
+
+    const total = await Product.countDocuments(filtro);
+    const pageNum = Math.max(1, Number(page));
+    const docs = await q.skip((pageNum - 1) * Number(limit)).limit(Number(limit));
+
+    return res.json({ items: docs, total, page: pageNum });
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener productos", details: error.message });
+    console.error("Error getAllProducts:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 };
 
-// 🟢 Crear producto
+export const getProductById = async (req, res) => {
+  try {
+    const p = await Product.findById(req.params.id).populate("categoria", "nombre slug");
+    if (!p) return res.status(404).json({ message: "Producto no encontrado" });
+    res.json(p);
+  } catch (error) {
+    console.error("Error getProductById:", error);
+    res.status(500).json({ error: "Error interno" });
+  }
+};
+
 export const createProduct = async (req, res) => {
   try {
-    const { nombre, descripcion, precio, imagen, stock, categoria } = req.body;
-
-    if (categoria) {
-      const exists = await Category.findById(categoria);
-      if (!exists) {
-        return res.status(400).json({ error: "La categoría especificada no existe" });
-      }
-
-      const tieneHijos = await Category.exists({ parent: categoria });
-      if (tieneHijos) {
-        return res.status(400).json({
-          error: "No se puede crear un producto en una categoría que tiene subcategorías. Seleccione una categoría hoja."
-        });
-      }
+    const payload = req.body || {};
+    // Asegurarse de que categoria exista (opcional)
+    if (payload.categoria) {
+      const cat = await Category.findById(payload.categoria);
+      if (!cat) return res.status(400).json({ error: "Categoría no válida" });
     }
 
-    const newProduct = new Product({
-      nombre,
-      descripcion,
-      precio,
-      imagen,
-      stock,
-      categoria
-    });
+    // Normalizar campos numéricos
+    if (payload.precio) payload.precio = Number(payload.precio);
+    if (payload.precio_descuento) payload.precio_descuento = Number(payload.precio_descuento);
+    if (payload.stock) payload.stock = Number(payload.stock);
 
-    const saved = await newProduct.save();
-    res.status(201).json(saved);
-
+    const product = new Product(payload);
+    await product.save();
+    const populated = await Product.findById(product._id).populate("categoria", "nombre slug");
+    res.status(201).json(populated);
   } catch (error) {
+    console.error("Error createProduct:", error);
     res.status(400).json({ error: "Error al crear producto", details: error.message });
   }
 };
 
-// 🟢 Obtener por ID
-export const getProductById = async (req, res) => {
+export const updateProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate("categoria", "nombre descripcion");
+    const updates = req.body || {};
+    if (updates.precio) updates.precio = Number(updates.precio);
+    if (updates.precio_descuento) updates.precio_descuento = Number(updates.precio_descuento);
+    if (updates.stock) updates.stock = Number(updates.stock);
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updates, { new: true }).populate("categoria", "nombre slug");
     if (!product) return res.status(404).json({ message: "Producto no encontrado" });
     res.json(product);
   } catch (error) {
-    res.status(400).json({ error: "Error al buscar producto", details: error.message });
-  }
-};
-
-// 🟢 Actualizar producto
-export const updateProduct = async (req, res) => {
-  try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })
-      .populate("categoria", "nombre descripcion");
-    res.json(updated);
-  } catch (error) {
+    console.error("Error updateProduct:", error);
     res.status(400).json({ error: "Error al actualizar producto", details: error.message });
   }
 };
 
-// 🟢 Eliminar producto
 export const deleteProduct = async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ message: "Producto eliminado correctamente" });
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
+    res.json({ message: "Producto eliminado" });
   } catch (error) {
-    res.status(400).json({ error: "Error al eliminar producto", details: error.message });
+    console.error("Error deleteProduct:", error);
+    res.status(500).json({ error: "Error interno al eliminar producto" });
   }
 };
 
-// 🟣 Obtener productos por categoría
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    if (!categoryId) {
-      return res.status(400).json({ error: "categoryId es requerido" });
-    }
-
-    const products = await Product.find({ categoria: categoryId }).populate("categoria", "nombre");
-
-    if (products.length === 0) {
-      return res.status(404).json({ message: "No se encontraron productos en esta categoría" });
-    }
-
+    if (!categoryId) return res.status(400).json({ error: "categoryId es requerido" });
+    const products = await Product.find({ categoria: categoryId }).populate("categoria", "nombre slug");
+    if (!products || products.length === 0) return res.status(404).json({ message: "No se encontraron productos en esta categoría" });
     res.json(products);
   } catch (error) {
+    console.error("Error getProductsByCategory:", error);
     res.status(400).json({ error: "Error al obtener productos por categoría", details: error.message });
+  }
+};
+
+// 📸 Subida de imágenes
+export const uploadProductImages = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No se subieron imágenes" });
+    }
+
+    const imagePaths = req.files.map((file) => `/uploads/products/${file.filename}`);
+
+    return res.status(200).json({
+      message: "Imágenes subidas correctamente",
+      imagenes: imagePaths,
+    });
+  } catch (error) {
+    console.error("Error al subir imágenes:", error);
+    res.status(500).json({ error: "Error al subir imágenes" });
   }
 };

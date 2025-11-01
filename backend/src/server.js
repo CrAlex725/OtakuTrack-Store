@@ -6,8 +6,7 @@ import app from "./app.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/otakutrack";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/otakutrack";
 
 if (!MONGO_URI) {
   console.error("❌ No se encontró la variable MONGO_URI en .env");

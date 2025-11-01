@@ -13,9 +13,10 @@ const categorySchema = new mongoose.Schema({
     },
 
   tipo: {
-     type: String, 
-     default: "principal" 
-    }, // principal / subcategoria
+   type: String,
+   enum: ["principal", "subcategoria", "otro"],
+   default: "principal"
+},
 
   categoria_padre_id: {
      type: mongoose.Schema.Types.ObjectId, 

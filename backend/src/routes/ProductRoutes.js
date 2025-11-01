@@ -2,23 +2,27 @@
 import express from "express";
 import {
   getAllProducts,
-  createProduct,
   getProductById,
+  createProduct,
   updateProduct,
   deleteProduct,
-  getProductsByCategory
+  getProductsByCategory,
+  uploadProductImages
 } from "../controllers/ProductController.js";
+
+import upload from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
-// 🟢 RUTAS ESPECÍFICAS PRIMERO
-router.get("/category/:categoryId", getProductsByCategory);
-
-// 🟢 RUTAS CRUD
+// 🧩 Rutas de productos
 router.get("/", getAllProducts);
-router.post("/", createProduct);
 router.get("/:id", getProductById);
+router.get("/category/:categoryId", getProductsByCategory);
+router.post("/", createProduct);
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);
+
+// 📸 Nueva ruta para subir imágenes
+router.post("/upload", upload.array("imagenes", 5), uploadProductImages);
 
 export default router;
